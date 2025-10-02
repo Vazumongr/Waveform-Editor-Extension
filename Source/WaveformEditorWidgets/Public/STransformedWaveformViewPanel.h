@@ -60,6 +60,8 @@ public:
 
 	FReply LaunchTimeRulerContextMenu();
 
+	void UpdateCuePoints();
+
 private:
 	void CreateLayout();
 
@@ -90,6 +92,8 @@ private:
 	TSharedPtr<SPlayheadOverlay> PlayheadOverlay;
 	TSharedPtr<SSampledSequenceValueGridOverlay> ValueGridOverlay;
 	TSharedPtr<SBorder> BackgroundBorder;
+	TSharedPtr<SOverlay> CuePointMarkerOverlay;
+	TSharedPtr<SOverlay> WaveformView;
 
 	TArray<TSharedPtr<SCuePointMarker>> CuePointMarkers;
 	TWeakObjectPtr<USoundWave> SoundWaveToDisplay;

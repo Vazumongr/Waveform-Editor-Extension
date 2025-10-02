@@ -14,6 +14,7 @@ class IToolkitHost;
 class SDockTab;
 class UAudioComponent;
 class USoundWave;
+class UWaveformEditorCuePointProxyContainer;
 class UWaveformEditorTransformationsSettings;
 
 class WAVEFORMEDITOR_API FWaveformEditor 
@@ -70,6 +71,7 @@ private:
 	/**	Details tabs set up */
 	TSharedRef<SDockTab> SpawnTab_Properties(const FSpawnTabArgs& Args);
 	TSharedRef<SDockTab> SpawnTab_Transformations(const FSpawnTabArgs& Args);
+	TSharedRef<SDockTab> SpawnTab_CuePoints(const FSpawnTabArgs& Args);
 	bool CreateDetailsViews();
 
 	/**	Waveform view tab setup */
@@ -117,16 +119,21 @@ private:
 	/** Transformations tab */
 	TSharedPtr<IDetailsView> TransformationsDetails;
 
+	/** Cue Points tab */
+	TSharedPtr<IDetailsView> CuePointsDetails;
+
 	/** Settings Editor App Identifier */
 	static const FName AppIdentifier;
 
 	/** Tab Ids */
 	static const FName PropertiesTabId;
 	static const FName TransformationsTabId;
+	static const FName CuePointsTabId;
 	static const FName WaveformDisplayTabId;
 	static const FName EditorName;
 	static const FName ToolkitFName;
 	TObjectPtr<USoundWave> SoundWave = nullptr;
+	TObjectPtr<UWaveformEditorCuePointProxyContainer> CuePointContainer;
 	TObjectPtr<UAudioComponent> AudioComponent = nullptr;
 	bool bWasPlayingBeforeScrubbing = false;
 	bool bIsInteractingWithTransformations = false;

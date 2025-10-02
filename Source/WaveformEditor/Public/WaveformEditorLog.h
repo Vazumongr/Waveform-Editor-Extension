@@ -4,4 +4,4 @@
 
 #include "CoreMinimal.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogWaveformEditor, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogWaveformEditorExtension, Log, All);

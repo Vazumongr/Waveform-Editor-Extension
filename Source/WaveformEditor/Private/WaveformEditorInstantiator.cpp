@@ -98,7 +98,7 @@ bool FWaveformEditorInstantiator::CanSoundWaveBeOpenedInEditor(const USoundWave*
 
 void FWaveformEditorInstantiator::DisplayErrorDialog(const FText& ErrorMessage) const
 {
-	UE_LOG(LogWaveformEditor, Warning, TEXT("%s"), *ErrorMessage.ToString())
+	UE_LOG(LogWaveformEditorExtension, Warning, TEXT("%s"), *ErrorMessage.ToString())
 
 	TSharedPtr<SWindow> OpeningErrorWindow = SNew(SWindow)
 		.Title(LOCTEXT("WaveEditorErrorWindowTitle", "Waveform Editor"))
@@ -131,7 +131,7 @@ void FWaveformEditorInstantiator::CreateWaveformEditor(TArray<USoundWave*> Sound
 
 			if (!WaveformEditor->Init(EToolkitMode::Standalone, nullptr, SoundWavePtr))
 			{
-				UE_LOG(LogWaveformEditor, Warning, TEXT("Could not open waveform editor for soundwave %s, initialization failed"), *(SoundWavePtr->GetName()))
+				UE_LOG(LogWaveformEditorExtension, Warning, TEXT("Could not open waveform editor for soundwave %s, initialization failed"), *(SoundWavePtr->GetName()))
 				WaveformEditor->CloseWindow(EAssetEditorCloseReason::AssetUnloadingOrInvalid);
 			}
 		}

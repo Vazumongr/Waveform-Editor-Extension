@@ -41,7 +41,7 @@ void FWaveformEditorWaveWriter::ExportTransformedWaveform()
 	Audio::TSampleBuffer<> BufferToWrite = GenerateSampleBuffer();
 
 	TFunction<void(const USoundWave*)> OnSoundWaveWritten = [AssetName, AssetPath](const USoundWave* ResultingWave) {
-		UE_LOG(LogWaveformEditor, Log, TEXT("Finished Exporting edited soundwave %s/%s"), *AssetPath, *AssetName);
+		UE_LOG(LogWaveformEditorExtension, Log, TEXT("Finished Exporting edited soundwave %s/%s"), *AssetPath, *AssetName);
 		TArray<UPackage*> PackagesToSave;
 
 		if(ResultingWave->GetPackage())
@@ -53,7 +53,7 @@ void FWaveformEditorWaveWriter::ExportTransformedWaveform()
 
 	if (!WaveWriter->BeginWriteToSoundWave(AssetName, BufferToWrite, AssetPath, OnSoundWaveWritten))
 	{
-		UE_LOG(LogWaveformEditor, Log, TEXT("Exporting edited soundwave to %s/%s failed"), *AssetPath, *AssetName);
+		UE_LOG(LogWaveformEditorExtension, Log, TEXT("Exporting edited soundwave to %s/%s failed"), *AssetPath, *AssetName);
 	}
 }
 

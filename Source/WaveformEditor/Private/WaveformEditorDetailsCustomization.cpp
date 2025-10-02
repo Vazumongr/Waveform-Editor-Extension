@@ -4,6 +4,7 @@
 
 #include "DetailCategoryBuilder.h"
 #include "DetailLayoutBuilder.h"
+#include "DetailWidgetRow.h"
 #include "Sound/SoundWave.h"
 
 namespace WaveformTransformationsDetails
@@ -95,4 +96,55 @@ void FWaveformTransformationsDetailsProvider::GetHandlesForUObjectProperties(con
 			OutPropertyHandles.Add(PropertyHandle.ToSharedRef());
 		}
 	}
+}
+
+namespace WaveformCuePointsDetails
+{
+	static const FLazyName CuePointsCategoryName("Info");
+
+	void GetUClassProperties(const UStruct* InClass, TArray<FProperty*>& OutProperties)
+	{
+		OutProperties.Empty();
+
+		for (TFieldIterator<FProperty> PropertyIterator(InClass); PropertyIterator; ++PropertyIterator)
+		{
+			OutProperties.Add(*PropertyIterator);
+		}
+	}
+
+	void BuildDetailsView(IDetailLayoutBuilder& DetailLayout)
+	{
+		TArray<FName> CategoryNames;
+		DetailLayout.GetCategoryNames(CategoryNames);
+		
+		for (FName& CategoryName : CategoryNames)
+		{
+			if (CategoryName != WaveformCuePointsDetails::CuePointsCategoryName)
+			{
+				DetailLayout.HideCategory(CategoryName);
+			}
+		}
+		
+		IDetailCategoryBuilder& CategoryBuilder = DetailLayout.EditCategory("Info");
+		CategoryBuilder.AddCustomRow(FText())
+			[
+				SNew(SBox)
+				.HAlign(HAlign_Right)
+				[
+					SNew(SButton)
+					.Text(FText::FromString(TEXT("Hello!")))
+				]
+			];
+	}
+}
+
+void FWaveformCuePointsDetailsCustomization::CustomizeDetails(IDetailLayoutBuilder& DetailLayout)
+{	
+	WaveformCuePointsDetails::BuildDetailsView(DetailLayout);
+}
+
+void FWaveformCuePointsDetailsProvider::CustomizeDetails(IDetailLayoutBuilder& DetailLayout)
+{
+	WaveformCuePointsDetails::BuildDetailsView(DetailLayout);
+	CachedCuePointsHandle = DetailLayout.GetProperty("CuePoints");
 }

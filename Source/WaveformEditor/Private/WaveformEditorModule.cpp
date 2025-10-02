@@ -9,7 +9,7 @@
 #include "WaveformEditorInstantiator.h"
 #include "WaveformEditorLog.h"
 
-DEFINE_LOG_CATEGORY(LogWaveformEditor);
+DEFINE_LOG_CATEGORY(LogWaveformEditorExtension);
 
 
 void FWaveformEditorModule::StartupModule()

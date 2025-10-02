@@ -60,7 +60,8 @@ void STransformedWaveformViewPanel::CreateLayout()
 	check(WaveformViewer);
 	check(InputRoutingOverlay);
 
-	TSharedPtr<SOverlay> WaveformView = SNew(SOverlay);
+	/*TSharedPtr<SOverlay>*/ WaveformView = SNew(SOverlay);
+	CuePointMarkerOverlay = SNew(SOverlay);
 
 	WaveformView->AddSlot()
 	[
@@ -76,8 +77,6 @@ void STransformedWaveformViewPanel::CreateLayout()
 	[
 		WaveformViewer.ToSharedRef()
 	];
-
-
 
 	if (WaveformTransformationsOverlay)
 	{
@@ -99,11 +98,16 @@ void STransformedWaveformViewPanel::CreateLayout()
 
 	for (const auto& marker : CuePointMarkers)
 	{
-		WaveformView->AddSlot()
+		CuePointMarkerOverlay->AddSlot()
 		[
 			marker.ToSharedRef()
 		];
 	}
+
+	WaveformView->AddSlot()
+	[
+		CuePointMarkerOverlay.ToSharedRef()
+	];
 
 	ChildSlot
 	[
@@ -154,7 +158,9 @@ void STransformedWaveformViewPanel::SetupPlayheadOverlay()
 
 void STransformedWaveformViewPanel::SetupCuePointMarkers()
 {
-	for (const auto& cuePoint : SoundWaveToDisplay->CuePoints)
+	auto& cuePoints = SoundWaveToDisplay->CuePoints;
+	CuePointMarkers.Empty(cuePoints.Num());
+	for (const auto& cuePoint : cuePoints)
 	{
 		CuePointMarkers.Add(SNew(SCuePointMarker, cuePoint));
 	}
@@ -246,6 +252,19 @@ FReply STransformedWaveformViewPanel::LaunchTimeRulerContextMenu()
 	}
 
 	return FReply::Unhandled();
+}
+
+void STransformedWaveformViewPanel::UpdateCuePoints()
+{
+	SetupCuePointMarkers();
+	CuePointMarkerOverlay->ClearChildren();
+	for (const auto& marker : CuePointMarkers)
+	{
+		CuePointMarkerOverlay->AddSlot()
+		[
+			marker.ToSharedRef()
+		];
+	}
 }
 
 void STransformedWaveformViewPanel::UpdateDisplayUnit(const ESampledSequenceDisplayUnit InDisplayUnit)

@@ -29,3 +29,21 @@ public:
 private:
 	TSharedPtr<class IPropertyHandle> CachedTransformationsHandle;
 };
+
+class FWaveformCuePointsDetailsCustomization : public IDetailCustomization
+{
+public:	
+	/** IDetailCustomization interface */
+	void CustomizeDetails(IDetailLayoutBuilder& DetailLayout) override;
+};
+
+
+class FWaveformCuePointsDetailsProvider : public IDetailCustomization, public IWaveformEditorDetailsProvider
+{
+public:
+	/** IDetailCustomization interface */
+	void CustomizeDetails(IDetailLayoutBuilder& DetailLayout) override;
+
+private:
+	TSharedPtr<class IPropertyHandle> CachedCuePointsHandle;
+};

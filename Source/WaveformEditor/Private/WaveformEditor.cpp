@@ -8,6 +8,7 @@
 #include "EditorReimportHandler.h"
 #include "Misc/TransactionObjectEvent.h"
 #include "PropertyEditorModule.h"
+#include "SCuePointsMenu.h"
 #include "Sound/SoundWave.h"
 #include "SparseSampledSequenceTransportCoordinator.h"
 #include "STransformedWaveformViewPanel.h"
@@ -17,6 +18,7 @@
 #include "TransformedWaveformView.h"
 #include "TransformedWaveformViewFactory.h"
 #include "WaveformEditorCommands.h"
+#include "WaveformEditorCuePointProxy.h"
 #include "WaveformEditorDetailsCustomization.h"
 #include "WaveformEditorLog.h"
 #include "WaveformEditorSequenceDataProvider.h"
@@ -24,13 +26,15 @@
 #include "WaveformEditorToolMenuContext.h"
 #include "WaveformEditorTransformationsSettings.h"
 #include "WaveformEditorWaveWriter.h"
+#include "Runtime/Slate/Private/Widgets/Views/SListPanel.h"
 #include "Widgets/Docking/SDockTab.h"
 
-#define LOCTEXT_NAMESPACE "WaveformEditor"
+#define LOCTEXT_NAMESPACE "WaveformEditorExtension"
 
-const FName FWaveformEditor::AppIdentifier("WaveformEditorApp");
+const FName FWaveformEditor::AppIdentifier("WaveformEditorExtensionApp");
 const FName FWaveformEditor::PropertiesTabId("WaveformEditor_Properties");
 const FName FWaveformEditor::TransformationsTabId("WaveformEditor_Transformations");
+const FName FWaveformEditor::CuePointsTabId("WaveformEditor_CuePoints");
 const FName FWaveformEditor::WaveformDisplayTabId("WaveformEditor_Display");
 const FName FWaveformEditor::EditorName("Waveform Editor");
 const FName FWaveformEditor::ToolkitFName("WaveformEditor");
@@ -165,7 +169,7 @@ bool FWaveformEditor::CreateTransportController()
 {
 	if (!ensure(AudioComponent))
 	{
-		UE_LOG(LogWaveformEditor, Warning, TEXT("Trying to setup transport controls with a null audio component"));
+		UE_LOG(LogWaveformEditorExtension, Warning, TEXT("Trying to setup transport controls with a null audio component"));
 		return false;
 	}
 
@@ -187,7 +191,7 @@ bool FWaveformEditor::BindDelegates()
 {
 	if (!ensure(AudioComponent))
 	{
-		UE_LOG(LogWaveformEditor, Warning, TEXT("Failed to bind to playback percentage change, audio component is null"));
+		UE_LOG(LogWaveformEditorExtension, Warning, TEXT("Failed to bind to playback percentage change, audio component is null"));
 		return false;
 	}
 
@@ -235,7 +239,9 @@ void FWaveformEditor::AddCuePoint()
 	cuePoint.CuePointID = SoundWave->CuePoints.Num() + 1;
 	cuePoint.FramePosition = SoundWave->Duration * LastReceivedPlaybackPercent * ImportedSampleRate;
 	cuePoint.Label = TEXT("Cue Point: ") + FString::FromInt(cuePoint.CuePointID);
-	soundWave->CuePoints.Add(cuePoint);
+	CuePointContainer->AddCuePoint(cuePoint);
+	//soundWave->CuePoints.Add(cuePoint);
+	//WaveformView.ViewWidget->UpdateCuePoints();
 }
 
 void FWaveformEditor::RegisterTabSpawners(const TSharedRef<FTabManager>& InTabManager)
@@ -251,6 +257,11 @@ void FWaveformEditor::RegisterTabSpawners(const TSharedRef<FTabManager>& InTabMa
 
 	InTabManager->RegisterTabSpawner(TransformationsTabId, FOnSpawnTab::CreateSP(this, &FWaveformEditor::SpawnTab_Transformations))
 		.SetDisplayName(LOCTEXT("ProcessingTab", "Processing"))
+		.SetGroup(WorkspaceMenuCategory.ToSharedRef())
+		.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.Tabs.Details"));
+
+	InTabManager->RegisterTabSpawner(CuePointsTabId, FOnSpawnTab::CreateSP(this, &FWaveformEditor::SpawnTab_CuePoints))
+		.SetDisplayName(LOCTEXT("CuePointsTab", "CuePoints"))
 		.SetGroup(WorkspaceMenuCategory.ToSharedRef())
 		.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.Tabs.Details"));
 
@@ -705,7 +716,7 @@ bool FWaveformEditor::CreateDetailsViews()
 {
 	if (!ensure(SoundWave)) 
 	{
-		UE_LOG(LogWaveformEditor, Warning, TEXT("Trying to setup wav editor properties view from a null SoundWave"));
+		UE_LOG(LogWaveformEditorExtension, Warning, TEXT("Trying to setup wav editor properties view from a null SoundWave"));
 		return false;
 	}
 
@@ -713,7 +724,7 @@ bool FWaveformEditor::CreateDetailsViews()
 	FDetailsViewArgs Args;
 	Args.bHideSelectionTip = true;
 	Args.NotifyHook = this;
-
+	
 	PropertiesDetails = PropertyModule.CreateDetailView(Args);
 	PropertiesDetails->SetObject(SoundWave);
 
@@ -725,6 +736,18 @@ bool FWaveformEditor::CreateDetailsViews()
 
 	TransformationsDetails->RegisterInstancedCustomPropertyLayout(SoundWave->GetClass(), TransformationsDetailsCustomizationInstance);
 	TransformationsDetails->SetObject(SoundWave);
+
+	// FOnGetDetailCustomizationInstance CuePointsDetailsCustomizationInstance = FOnGetDetailCustomizationInstance::CreateLambda([]()
+	// {
+	// 	return MakeShared<FWaveformCuePointsDetailsCustomization>();
+	// });
+	//
+	// CuePointsDetails->RegisterInstancedCustomPropertyLayout(SoundWave->GetClass(), CuePointsDetailsCustomizationInstance);
+	
+	CuePointContainer = NewObject<UWaveformEditorCuePointProxyContainer>();
+	CuePointContainer->Initialize(SoundWave);
+	CuePointsDetails = PropertyModule.CreateDetailView(Args);
+	CuePointsDetails->SetObject(CuePointContainer);
 
 	return true;
 }
@@ -742,7 +765,7 @@ TSharedRef<SDockTab> FWaveformEditor::SpawnTab_WaveformDisplay(const FSpawnTabAr
 
 const TSharedRef<FTabManager::FLayout> FWaveformEditor::SetupStandaloneLayout()
 {
-	const TSharedRef<FTabManager::FLayout> StandaloneDefaultLayout = FTabManager::NewLayout("Standalone_WaveformEditor_v2")
+	const TSharedRef<FTabManager::FLayout> StandaloneDefaultLayout = FTabManager::NewLayout("Standalone_WaveformEditor_v2_Extended")
 		->AddArea
 		(
 			FTabManager::NewPrimaryArea()->SetOrientation(Orient_Vertical)
@@ -755,6 +778,7 @@ const TSharedRef<FTabManager::FLayout> FWaveformEditor::SetupStandaloneLayout()
 					->SetSizeCoefficient(0.2f)
 					->AddTab(TransformationsTabId, ETabState::OpenedTab)
 					->AddTab(PropertiesTabId, ETabState::OpenedTab)
+					->AddTab(CuePointsTabId, ETabState::OpenedTab)
 					->SetForegroundTab(TransformationsTabId)
 
 				)
@@ -793,11 +817,38 @@ TSharedRef<SDockTab> FWaveformEditor::SpawnTab_Transformations(const FSpawnTabAr
 		];
 }
 
+TSharedRef<SDockTab> FWaveformEditor::SpawnTab_CuePoints(const FSpawnTabArgs& Args)
+{
+	check(Args.GetTabId() == CuePointsTabId);
+	
+	return SNew(SDockTab)
+		.Label(LOCTEXT("SoundWaveProcessingTitle", "Cue Points"))
+		[
+			CuePointsDetails.ToSharedRef()
+			
+			// SNew(SCuePointsMenu)
+			// .SoundWaveAsset(SoundWave)
+			
+			// CuePointsDetails.ToSharedRef()
+			// SNew(SListPanel)
+			// +SListPanel::Slot()
+			// [
+			// 	SNew(STextBlock)
+			// 	.Text(FText::FromString(TEXT("Hello world!")))
+			// ]
+			// +SListPanel::Slot()
+			// [
+			// 	SNew(STextBlock)
+			// 	.Text(FText::FromString(TEXT("Hello world again!")))
+			// ]
+		];
+}
+
 bool FWaveformEditor::CreateWaveformView()
 {
 	if (!ensure(SoundWave))
 	{
-		UE_LOG(LogWaveformEditor, Warning, TEXT("Trying to setup waveform panel from a null SoundWave"));
+		UE_LOG(LogWaveformEditorExtension, Warning, TEXT("Trying to setup waveform panel from a null SoundWave"));
 		return false;
 	}
 	
@@ -808,6 +859,9 @@ bool FWaveformEditor::CreateWaveformView()
 
 	WaveformView = FTransformedWaveformViewFactory::Get().GetTransformedView(SoundWave, TransportCoordinator.ToSharedRef(), this, ZoomManager);
 
+	check(CuePointContainer)
+	CuePointContainer->OnDataUpdated.AddSP(WaveformView.ViewWidget.ToSharedRef(), &STransformedWaveformViewPanel::UpdateCuePoints);
+	
 	check(ZoomManager)
 
 	BindWaveformViewDelegates(*WaveformView.DataProvider, *WaveformView.ViewWidget);
