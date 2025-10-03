@@ -13,7 +13,9 @@
 #include "WaveformEditorSequenceDataProvider.h"
 #include "WaveformEditorZoomController.h"
 
+// VAZU MOD - BEGIN
 static FLazyName TimeRulerWidgetName("SExtendedFixedSampleSequenceRuler");
+// VAZU MOD - END
 
 FTransformedWaveformViewFactory& FTransformedWaveformViewFactory::Get()
 {
@@ -45,9 +47,9 @@ FTransformedWaveformView FTransformedWaveformViewFactory::GetTransformedView(TOb
 
 	TSharedPtr<SWaveformTransformationsOverlay> TransformationsOverlay = SNew(SWaveformTransformationsOverlay, WaveformDataProvider->GetTransformLayers()).AnchorsRatioConverter(TransformationsOverlayZoomConverter);
 
-	/* VAZU EXTENSION BEGIN */
+	/* VAZU MOD - BEGIN */
 	TSharedPtr<STransformedWaveformViewPanel> WaveformPanel = SNew(STransformedWaveformViewPanel, SequenceView, SoundWaveToView->CuePoints, SoundWaveToView).TransformationsOverlay(TransformationsOverlay);
-	/* VAZU EXTENSION END */
+	/* VAZU MOD - END */
 	SetUpWaveformPanelInteractions(WaveformPanel.ToSharedRef(), TransportCoordinator, InZoomController, TransformationsOverlay);
 
 	WaveformDataProvider->OnLayersChainGenerated.AddSP(TransformationsOverlay.Get(), &SWaveformTransformationsOverlay::OnLayerChainGenerated);

@@ -21,7 +21,9 @@ public:
 	bool IsPlaying() const;
 	void CacheStartTime(const float StartTime);
 	void Seek(const float SeekTime);
+	// VAZU MOD - BEGIN
 	bool CanAddCuePoint();
+	// VAZU MOD - END
 
 private:
 	const bool SoundBaseIsValid() const;

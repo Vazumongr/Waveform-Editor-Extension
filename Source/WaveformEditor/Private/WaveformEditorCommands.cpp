@@ -31,7 +31,9 @@ void FWaveformEditorCommands::RegisterCommands()
 	UI_COMMAND(ReimportModeSameFile, "Reimport from same file", "Reimports asset from the same file", EUserInterfaceActionType::Check, FInputChord());
 	UI_COMMAND(ReimportModeNewFile, "Reimport from new file", "Reimports asset from a selected file", EUserInterfaceActionType::Check, FInputChord());
 
+	// VAZU MOD - BEGIN
 	UI_COMMAND(InsertCuePoint, "Insert a cue point", "Inserts a cue point into the sound wave", EUserInterfaceActionType::Button, FInputChord());
+	// VAZU MOD - END
 }
 	
 const FWaveformEditorCommands& FWaveformEditorCommands::Get()

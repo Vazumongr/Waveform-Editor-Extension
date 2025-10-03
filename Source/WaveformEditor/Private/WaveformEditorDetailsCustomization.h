@@ -29,7 +29,7 @@ public:
 private:
 	TSharedPtr<class IPropertyHandle> CachedTransformationsHandle;
 };
-
+// VAZU MOD - BEGIN
 class FWaveformCuePointsDetailsCustomization : public IDetailCustomization
 {
 public:	
@@ -47,3 +47,4 @@ public:
 private:
 	TSharedPtr<class IPropertyHandle> CachedCuePointsHandle;
 };
+// VAZU MOD - END

@@ -8,7 +8,6 @@
 #include "EditorReimportHandler.h"
 #include "Misc/TransactionObjectEvent.h"
 #include "PropertyEditorModule.h"
-#include "SCuePointsMenu.h"
 #include "Sound/SoundWave.h"
 #include "SparseSampledSequenceTransportCoordinator.h"
 #include "STransformedWaveformViewPanel.h"
@@ -18,7 +17,6 @@
 #include "TransformedWaveformView.h"
 #include "TransformedWaveformViewFactory.h"
 #include "WaveformEditorCommands.h"
-#include "WaveformEditorCuePointProxy.h"
 #include "WaveformEditorDetailsCustomization.h"
 #include "WaveformEditorLog.h"
 #include "WaveformEditorSequenceDataProvider.h"
@@ -26,11 +24,17 @@
 #include "WaveformEditorToolMenuContext.h"
 #include "WaveformEditorTransformationsSettings.h"
 #include "WaveformEditorWaveWriter.h"
-#include "Runtime/Slate/Private/Widgets/Views/SListPanel.h"
 #include "Widgets/Docking/SDockTab.h"
 
-#define LOCTEXT_NAMESPACE "WaveformEditorExtension"
+// VAZU MOD - BEGIN
+#include "WaveformEditorCuePointProxy.h"
+// VAZU MOD - END
 
+// VAZU MOD - BEGIN
+#define LOCTEXT_NAMESPACE "WaveformEditorExtension"
+// VAZU MOD - END
+
+// VAZU MOD - BEGIN
 const FName FWaveformEditor::AppIdentifier("WaveformEditorExtensionApp");
 const FName FWaveformEditor::PropertiesTabId("WaveformEditor_Properties");
 const FName FWaveformEditor::TransformationsTabId("WaveformEditor_Transformations");
@@ -38,6 +42,7 @@ const FName FWaveformEditor::CuePointsTabId("WaveformEditor_CuePoints");
 const FName FWaveformEditor::WaveformDisplayTabId("WaveformEditor_Display");
 const FName FWaveformEditor::EditorName("Waveform Editor");
 const FName FWaveformEditor::ToolkitFName("WaveformEditor");
+// VAZU MOD - END
 
 
 bool FWaveformEditor::Init(const EToolkitMode::Type Mode, const TSharedPtr<IToolkitHost>& InitToolkitHost, USoundWave* SoundWaveToEdit)
@@ -169,7 +174,9 @@ bool FWaveformEditor::CreateTransportController()
 {
 	if (!ensure(AudioComponent))
 	{
+		// VAZU MOD - BEGIN
 		UE_LOG(LogWaveformEditorExtension, Warning, TEXT("Trying to setup transport controls with a null audio component"));
+		// VAZU MOD - END
 		return false;
 	}
 
@@ -191,7 +198,9 @@ bool FWaveformEditor::BindDelegates()
 {
 	if (!ensure(AudioComponent))
 	{
+		// VAZU MOD - BEGIN
 		UE_LOG(LogWaveformEditorExtension, Warning, TEXT("Failed to bind to playback percentage change, audio component is null"));
+		// VAZU MOD - END
 		return false;
 	}
 
@@ -226,6 +235,7 @@ void FWaveformEditor::ExecuteReimport()
 	FReimportManager::Instance()->ValidateAllSourceFileAndReimport(CopyOfSelectedAssets, true, -1, bSelectNewAsset);
 }
 
+// VAZU MOD - BEGIN
 void FWaveformEditor::AddCuePoint()
 {
 	USoundWave* soundWave = Cast<USoundWave>(AudioComponent->GetSound());
@@ -243,6 +253,7 @@ void FWaveformEditor::AddCuePoint()
 	//soundWave->CuePoints.Add(cuePoint);
 	//WaveformView.ViewWidget->UpdateCuePoints();
 }
+// VAZU MOD - END
 
 void FWaveformEditor::RegisterTabSpawners(const TSharedRef<FTabManager>& InTabManager)
 {
@@ -260,10 +271,12 @@ void FWaveformEditor::RegisterTabSpawners(const TSharedRef<FTabManager>& InTabMa
 		.SetGroup(WorkspaceMenuCategory.ToSharedRef())
 		.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.Tabs.Details"));
 
+	// VAZU MOD - BEGIN
 	InTabManager->RegisterTabSpawner(CuePointsTabId, FOnSpawnTab::CreateSP(this, &FWaveformEditor::SpawnTab_CuePoints))
 		.SetDisplayName(LOCTEXT("CuePointsTab", "CuePoints"))
 		.SetGroup(WorkspaceMenuCategory.ToSharedRef())
 		.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.Tabs.Details"));
+	// VAZU MOD - END
 
 	InTabManager->RegisterTabSpawner(WaveformDisplayTabId, FOnSpawnTab::CreateSP(this, &FWaveformEditor::SpawnTab_WaveformDisplay))
 		.SetDisplayName(LOCTEXT("WaveformDisplayTab", "WaveformDisplay"))
@@ -326,6 +339,7 @@ bool FWaveformEditor::RegisterToolbar()
 		PlayBackSection.AddEntry(PauseEntry);
 		PlayBackSection.AddEntry(StopEntry);
 
+		// VAZU MOD - BEGIN
 		FToolMenuInsert InsertAfterPlaybackSection("Transport Controls", EToolMenuInsertType::After);
 		FToolMenuSection& EditSection = ToolBar->AddSection("Edit Controls", TAttribute<FText>(FText::FromString(TEXT("Edit Controls"))), InsertAfterPlaybackSection);
 
@@ -342,6 +356,7 @@ bool FWaveformEditor::RegisterToolbar()
 		FToolMenuInsert InsertAfterEditSection("Edit Controls", EToolMenuInsertType::After);
 		
 		FToolMenuSection& ZoomSection = ToolBar->AddSection("Zoom Controls", TAttribute<FText>(), InsertAfterEditSection);
+		// VAZU MOD - END
 
 		FToolMenuEntry ZoomInEntry = FToolMenuEntry::InitToolBarButton(
 			Commands.ZoomIn,
@@ -549,10 +564,12 @@ bool FWaveformEditor::BindCommands()
 		FCanExecuteAction::CreateLambda([this] { return CanExecuteReimport(); }),
 		FIsActionChecked::CreateLambda([this] {return ReimportMode == EWaveEditorReimportMode::SelectFile; }));
 
+	// VAZU MOD - BEGIN
 	ToolkitCommands->MapAction(
 		Commands.InsertCuePoint,
 		FExecuteAction::CreateSP(this, &FWaveformEditor::AddCuePoint),
 		FCanExecuteAction::CreateSP(TransportController.ToSharedRef(), &FWaveformEditorTransportController::CanAddCuePoint));
+	// VAZU MOD - END
 
 	
 	return true;
@@ -716,7 +733,9 @@ bool FWaveformEditor::CreateDetailsViews()
 {
 	if (!ensure(SoundWave)) 
 	{
+		// VAZU MOD - BEGIN
 		UE_LOG(LogWaveformEditorExtension, Warning, TEXT("Trying to setup wav editor properties view from a null SoundWave"));
+		// VAZU MOD - END
 		return false;
 	}
 
@@ -724,7 +743,7 @@ bool FWaveformEditor::CreateDetailsViews()
 	FDetailsViewArgs Args;
 	Args.bHideSelectionTip = true;
 	Args.NotifyHook = this;
-	
+
 	PropertiesDetails = PropertyModule.CreateDetailView(Args);
 	PropertiesDetails->SetObject(SoundWave);
 
@@ -736,7 +755,7 @@ bool FWaveformEditor::CreateDetailsViews()
 
 	TransformationsDetails->RegisterInstancedCustomPropertyLayout(SoundWave->GetClass(), TransformationsDetailsCustomizationInstance);
 	TransformationsDetails->SetObject(SoundWave);
-
+	// VAZU MOD - BEGIN
 	// FOnGetDetailCustomizationInstance CuePointsDetailsCustomizationInstance = FOnGetDetailCustomizationInstance::CreateLambda([]()
 	// {
 	// 	return MakeShared<FWaveformCuePointsDetailsCustomization>();
@@ -748,7 +767,7 @@ bool FWaveformEditor::CreateDetailsViews()
 	CuePointContainer->Initialize(SoundWave);
 	CuePointsDetails = PropertyModule.CreateDetailView(Args);
 	CuePointsDetails->SetObject(CuePointContainer);
-
+	// VAZU MOD - END
 	return true;
 }
 
@@ -765,6 +784,7 @@ TSharedRef<SDockTab> FWaveformEditor::SpawnTab_WaveformDisplay(const FSpawnTabAr
 
 const TSharedRef<FTabManager::FLayout> FWaveformEditor::SetupStandaloneLayout()
 {
+	// VAZU MOD - BEGIN
 	const TSharedRef<FTabManager::FLayout> StandaloneDefaultLayout = FTabManager::NewLayout("Standalone_WaveformEditor_v2_Extended")
 		->AddArea
 		(
@@ -791,6 +811,7 @@ const TSharedRef<FTabManager::FLayout> FWaveformEditor::SetupStandaloneLayout()
 				)
 			)
 		);
+	// VAZU MOD - END
 
 	return StandaloneDefaultLayout;
 }
@@ -817,6 +838,7 @@ TSharedRef<SDockTab> FWaveformEditor::SpawnTab_Transformations(const FSpawnTabAr
 		];
 }
 
+// VAZU MOD - BEGIN
 TSharedRef<SDockTab> FWaveformEditor::SpawnTab_CuePoints(const FSpawnTabArgs& Args)
 {
 	check(Args.GetTabId() == CuePointsTabId);
@@ -843,6 +865,7 @@ TSharedRef<SDockTab> FWaveformEditor::SpawnTab_CuePoints(const FSpawnTabArgs& Ar
 			// ]
 		];
 }
+// VAZU MOD - END
 
 bool FWaveformEditor::CreateWaveformView()
 {
@@ -859,8 +882,10 @@ bool FWaveformEditor::CreateWaveformView()
 
 	WaveformView = FTransformedWaveformViewFactory::Get().GetTransformedView(SoundWave, TransportCoordinator.ToSharedRef(), this, ZoomManager);
 
+	// VAZU MOD - BEGIN
 	check(CuePointContainer)
 	CuePointContainer->OnDataUpdated.AddSP(WaveformView.ViewWidget.ToSharedRef(), &STransformedWaveformViewPanel::UpdateCuePoints);
+	// VAZU MOD - END 
 	
 	check(ZoomManager)
 
@@ -980,8 +1005,11 @@ void FWaveformEditor::HandlePlayheadScrub(const float InTargetPlayBackRatio, con
 		{
 			TransportController->CacheStartTime(NewTime);
 		}
+
 	}
+	// VAZU MOD - BEGIN
 	LastReceivedPlaybackPercent = InTargetPlayBackRatio;
+	// VAZU MOD - END
 }
 
 void FWaveformEditor::AddReferencedObjects(FReferenceCollector& Collector)

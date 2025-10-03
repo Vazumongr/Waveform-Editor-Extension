@@ -22,7 +22,9 @@ public:
 	virtual const FFixedSampledSequenceGridMetrics GetGridMetrics() const override;
 	void SetTicksTimeFont(const FSlateFontInfo* InNewFont);
 	const float SnapPositionToClosestFrame(const float InPixelPosition) const;
+	// VAZU MOD - BEGIN
 	TRange<uint32> GetDisplayRange() const { return DisplayRange; }
+	// VAZU MOD - END
 
 	FOnWaveformEditorGridUpdated OnGridMetricsUpdated;
 

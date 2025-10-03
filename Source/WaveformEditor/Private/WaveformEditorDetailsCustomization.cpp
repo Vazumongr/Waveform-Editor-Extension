@@ -97,7 +97,7 @@ void FWaveformTransformationsDetailsProvider::GetHandlesForUObjectProperties(con
 		}
 	}
 }
-
+// VAZU MOD - BEGIN
 namespace WaveformCuePointsDetails
 {
 	static const FLazyName CuePointsCategoryName("Info");
@@ -148,3 +148,4 @@ void FWaveformCuePointsDetailsProvider::CustomizeDetails(IDetailLayoutBuilder& D
 	WaveformCuePointsDetails::BuildDetailsView(DetailLayout);
 	CachedCuePointsHandle = DetailLayout.GetProperty("CuePoints");
 }
+// VAZU MOD - END

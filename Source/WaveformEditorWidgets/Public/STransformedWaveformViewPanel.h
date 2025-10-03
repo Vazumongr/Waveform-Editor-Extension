@@ -46,8 +46,10 @@ public:
 		SLATE_ARGUMENT(FPointerEventHandler, OnMouseWheel)
 
 	SLATE_END_ARGS()
-	
+
+	// VAZU MOD - BEGIN
 	void Construct(const FArguments& InArgs, const FFixedSampledSequenceView& InView, const TArray<FSoundWaveCuePoint>& InCuePoints, TObjectPtr<USoundWave> InSoundWave);
+	// VAZU MOD - END
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 	virtual void ReceiveSequenceView(const FFixedSampledSequenceView InView, const uint32 FirstSampleIndex = 0) override;
 	void SetPlayheadRatio(const float InRatio);
@@ -60,14 +62,18 @@ public:
 
 	FReply LaunchTimeRulerContextMenu();
 
+	// VAZU MOD - BEGIN
 	void UpdateCuePoints();
+	// VAZE MOD - END
 
 private:
 	void CreateLayout();
 
 	void SetUpGridData();
 	void SetupPlayheadOverlay();
+	// VAZU MOD - BEGIN
 	void SetupCuePointMarkers();
+	// VAZU MOD - END
 	void SetUpTimeRuler(TSharedRef<FWaveformEditorGridData> InGridData);
 	void SetUpWaveformViewer(TSharedRef<FWaveformEditorGridData> InGridData, const FFixedSampledSequenceView& InView);
 	void SetUpInputRoutingOverlay();
@@ -78,26 +84,32 @@ private:
 
 	void UpdateDisplayUnit(const ESampledSequenceDisplayUnit InDisplayUnit);
 	void UpdatePlayheadPosition(const float PaintedWidth);
+	// VAZU MOD - BEGIN
 	void UpdateCuePointMarkerPositions(const float PaintedWidth);
+	// VAZU MOD - END
 	void UpdateBackground(const FSampledSequenceViewerStyle UpdatedStyle);
 
 	void OnWaveEditorWidgetSettingsUpdated(const FName& PropertyName, const UWaveformEditorWidgetsSettings* Settings);
 
 	TSharedPtr<FWaveformEditorGridData> GridData;
 
+	// VAZU MOD - BEGIN
 	TSharedPtr<SExtendedFixedSampleSequenceRuler> TimeRuler;
+	// VAZU MOD - END
 	TSharedPtr<SFixedSampledSequenceViewer> WaveformViewer;
  	TSharedPtr<SWaveformTransformationsOverlay> WaveformTransformationsOverlay;
 	TSharedPtr<SWaveformEditorInputRoutingOverlay> InputRoutingOverlay;
 	TSharedPtr<SPlayheadOverlay> PlayheadOverlay;
 	TSharedPtr<SSampledSequenceValueGridOverlay> ValueGridOverlay;
 	TSharedPtr<SBorder> BackgroundBorder;
+	// VAZU MOD - BEGIN
 	TSharedPtr<SOverlay> CuePointMarkerOverlay;
 	TSharedPtr<SOverlay> WaveformView;
 
 	TArray<TSharedPtr<SCuePointMarker>> CuePointMarkers;
 	TWeakObjectPtr<USoundWave> SoundWaveToDisplay;
 	TArray<FSoundWaveCuePoint> CuePoints;
+	// VAZU MOD - END
 
 	float CachedPixelWidth = 0.f;
 

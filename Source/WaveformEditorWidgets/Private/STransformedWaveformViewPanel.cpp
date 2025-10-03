@@ -25,8 +25,10 @@ void STransformedWaveformViewPanel::Construct(const FArguments& InArgs, const FF
 {
 	DisplayUnit = ESampledSequenceDisplayUnit::Seconds;
 	DataView = InData;
+	// VAZU MOD - BEGIN
 	CuePoints = InCuePoints;
 	SoundWaveToDisplay = InSoundWave;
+	// VAZU MOD - END
 
 	WaveformEditorStyle = &FWaveformEditorStyle::Get();
 	check(WaveformEditorStyle);
@@ -42,7 +44,9 @@ void STransformedWaveformViewPanel::Construct(const FArguments& InArgs, const FF
 	}
 
 	SetupPlayheadOverlay();
+	// VAZU MOD - BEGIN
 	SetupCuePointMarkers();
+	// VAZU MOD - END
 	SetUpInputRoutingOverlay();
 	SetUpTimeRuler(GridData.ToSharedRef());
 	SetUpInputOverrides(InArgs);
@@ -60,8 +64,10 @@ void STransformedWaveformViewPanel::CreateLayout()
 	check(WaveformViewer);
 	check(InputRoutingOverlay);
 
+	// VAZU MOD - BEGIN
 	/*TSharedPtr<SOverlay>*/ WaveformView = SNew(SOverlay);
 	CuePointMarkerOverlay = SNew(SOverlay);
+	// VAZU MOD - END
 
 	WaveformView->AddSlot()
 	[
@@ -96,6 +102,7 @@ void STransformedWaveformViewPanel::CreateLayout()
 		InputRoutingOverlay.ToSharedRef()
 	];
 
+	// VAZU MOD - BEGIN
 	for (const auto& marker : CuePointMarkers)
 	{
 		CuePointMarkerOverlay->AddSlot()
@@ -108,6 +115,7 @@ void STransformedWaveformViewPanel::CreateLayout()
 	[
 		CuePointMarkerOverlay.ToSharedRef()
 	];
+	// VAZU MOD - END
 
 	ChildSlot
 	[
@@ -127,9 +135,11 @@ void STransformedWaveformViewPanel::SetUpTimeRuler(TSharedRef<FWaveformEditorGri
 {
 	const FFixedSampleSequenceRulerStyle& TimeRulerStyle = WaveformEditorStyle->GetWidgetStyle<FFixedSampleSequenceRulerStyle>("WaveformEditorRuler.Style");
 
+	// VAZU MOD - BEGIN
 	TimeRuler = SNew(SExtendedFixedSampleSequenceRuler, InGridData, CuePoints).DisplayUnit(DisplayUnit).Style(&TimeRulerStyle);
 	GridData->OnGridMetricsUpdated.AddSP(TimeRuler.ToSharedRef(), &SExtendedFixedSampleSequenceRuler::UpdateGridMetrics);
 	WaveformEditorStyle->OnNewTimeRulerStyle.AddSP(TimeRuler.ToSharedRef(), &SExtendedFixedSampleSequenceRuler::OnStyleUpdated);
+	// VAZU MOD - END
 	TimeRuler->OnTimeUnitMenuSelection.AddSP(this, &STransformedWaveformViewPanel::UpdateDisplayUnit);
 }
 
@@ -156,6 +166,7 @@ void STransformedWaveformViewPanel::SetupPlayheadOverlay()
 	WaveformEditorStyle->OnNewPlayheadOverlayStyle.AddSP(PlayheadOverlay.ToSharedRef(), &SPlayheadOverlay::OnStyleUpdated);
 }
 
+// VAZU MOD - BEGIN
 void STransformedWaveformViewPanel::SetupCuePointMarkers()
 {
 	auto& cuePoints = SoundWaveToDisplay->CuePoints;
@@ -165,6 +176,7 @@ void STransformedWaveformViewPanel::SetupCuePointMarkers()
 		CuePointMarkers.Add(SNew(SCuePointMarker, cuePoint));
 	}
 }
+// VAZU MOD - END
 
 void STransformedWaveformViewPanel::SetUpWaveformViewer(TSharedRef<FWaveformEditorGridData> InGridData, const FFixedSampledSequenceView& InData)
 {
@@ -254,6 +266,7 @@ FReply STransformedWaveformViewPanel::LaunchTimeRulerContextMenu()
 	return FReply::Unhandled();
 }
 
+// VAZU MOD - BEGIN
 void STransformedWaveformViewPanel::UpdateCuePoints()
 {
 	SetupCuePointMarkers();
@@ -266,6 +279,7 @@ void STransformedWaveformViewPanel::UpdateCuePoints()
 		];
 	}
 }
+// VAZU MOD - END
 
 void STransformedWaveformViewPanel::UpdateDisplayUnit(const ESampledSequenceDisplayUnit InDisplayUnit)
 {
@@ -288,7 +302,9 @@ void STransformedWaveformViewPanel::Tick(const FGeometry& AllottedGeometry, cons
 	}
 
 	UpdatePlayheadPosition(PaintedWidth);
+	// VAZU MOD - BEGIN
 	UpdateCuePointMarkerPositions(PaintedWidth);
+	// VAZU MOD - END
 
 }
 
@@ -310,6 +326,7 @@ void STransformedWaveformViewPanel::UpdatePlayheadPosition(const float PaintedWi
 	}
 }
 
+// VAZU MOD - BEGIN
 void STransformedWaveformViewPanel::UpdateCuePointMarkerPositions(const float PaintedWidth)
 {
 	TArray<uint8> ImportedRawPCMData;
@@ -334,6 +351,7 @@ void STransformedWaveformViewPanel::UpdateCuePointMarkerPositions(const float Pa
 	}
 	TimeRuler->SetMarkerPositions(CuePointMarkers);
 }
+// VAZU MOD - END
 
 void STransformedWaveformViewPanel::UpdateBackground(const FSampledSequenceViewerStyle UpdatedStyle)
 {

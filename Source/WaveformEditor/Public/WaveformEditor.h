@@ -56,7 +56,9 @@ private:
 	bool BindDelegates();
 	bool SetUpAssetReimport();
 	void ExecuteReimport();
+	// VAZU MOD - BEGIN
 	void AddCuePoint();
+	// VAZU MOD - END
 
 	/**	Sets the wave editor layout */
 	const TSharedRef<FTabManager::FLayout> SetupStandaloneLayout();
@@ -71,7 +73,9 @@ private:
 	/**	Details tabs set up */
 	TSharedRef<SDockTab> SpawnTab_Properties(const FSpawnTabArgs& Args);
 	TSharedRef<SDockTab> SpawnTab_Transformations(const FSpawnTabArgs& Args);
+	// VAZU MOD - BEGIN
 	TSharedRef<SDockTab> SpawnTab_CuePoints(const FSpawnTabArgs& Args);
+	// VAZU MOD - END
 	bool CreateDetailsViews();
 
 	/**	Waveform view tab setup */
@@ -119,8 +123,10 @@ private:
 	/** Transformations tab */
 	TSharedPtr<IDetailsView> TransformationsDetails;
 
+	// VAZU MOD - BEGIN
 	/** Cue Points tab */
 	TSharedPtr<IDetailsView> CuePointsDetails;
+	// VAZU MOD - END
 
 	/** Settings Editor App Identifier */
 	static const FName AppIdentifier;
@@ -128,12 +134,16 @@ private:
 	/** Tab Ids */
 	static const FName PropertiesTabId;
 	static const FName TransformationsTabId;
+	// VAZU MOD - BEGIN
 	static const FName CuePointsTabId;
+	// VAZU MOD - END
 	static const FName WaveformDisplayTabId;
 	static const FName EditorName;
 	static const FName ToolkitFName;
 	TObjectPtr<USoundWave> SoundWave = nullptr;
+	// VAZU MOD - BEGIN
 	TObjectPtr<UWaveformEditorCuePointProxyContainer> CuePointContainer;
+	// VAZU MOD - END
 	TObjectPtr<UAudioComponent> AudioComponent = nullptr;
 	bool bWasPlayingBeforeScrubbing = false;
 	bool bIsInteractingWithTransformations = false;

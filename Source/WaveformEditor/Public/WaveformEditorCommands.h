@@ -31,6 +31,8 @@ public:
 	TSharedPtr<FUICommandInfo> ReimportModeSameFile;
 	TSharedPtr<FUICommandInfo> ReimportModeNewFile;
 
+	// VAZU MOD - BEGIN
 	TSharedPtr<FUICommandInfo> InsertCuePoint;
+	// VAZU MOD - END
 
 };

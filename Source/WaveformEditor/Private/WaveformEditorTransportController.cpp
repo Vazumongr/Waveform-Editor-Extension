@@ -123,12 +123,12 @@ void FWaveformEditorTransportController::Seek(const float SeekTime)
 {
 	AudioComponent->Play(SeekTime);
 }
-
+// VAZU MOD - BEGIN
 bool FWaveformEditorTransportController::CanAddCuePoint()
 {
 	return true;
 }
-
+// VAZU MOD - END
 const bool FWaveformEditorTransportController::SoundBaseIsValid() const
 {
 	return AudioComponent->GetSound() != nullptr;
