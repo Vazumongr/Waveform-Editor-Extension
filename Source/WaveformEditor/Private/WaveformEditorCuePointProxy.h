@@ -30,7 +30,7 @@ public:
 	FString Label;
 
 	// The frame position of the cue point
-	UPROPERTY(Category = Info, EditAnywhere)
+	UPROPERTY(Category = Info, EditAnywhere, Meta = (SliderExponent=1))
 	int32 FramePosition = 0;
 
 	// The frame length of the cue point (non-zero if it's a region)

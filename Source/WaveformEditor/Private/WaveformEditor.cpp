@@ -847,22 +847,6 @@ TSharedRef<SDockTab> FWaveformEditor::SpawnTab_CuePoints(const FSpawnTabArgs& Ar
 		.Label(LOCTEXT("SoundWaveProcessingTitle", "Cue Points"))
 		[
 			CuePointsDetails.ToSharedRef()
-			
-			// SNew(SCuePointsMenu)
-			// .SoundWaveAsset(SoundWave)
-			
-			// CuePointsDetails.ToSharedRef()
-			// SNew(SListPanel)
-			// +SListPanel::Slot()
-			// [
-			// 	SNew(STextBlock)
-			// 	.Text(FText::FromString(TEXT("Hello world!")))
-			// ]
-			// +SListPanel::Slot()
-			// [
-			// 	SNew(STextBlock)
-			// 	.Text(FText::FromString(TEXT("Hello world again!")))
-			// ]
 		];
 }
 // VAZU MOD - END

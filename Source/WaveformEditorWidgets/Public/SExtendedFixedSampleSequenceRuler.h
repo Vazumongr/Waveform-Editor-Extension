@@ -78,9 +78,11 @@ private:
 
 	bool bDisplayPlayhead = true;
 
-
+	// VAZU MOD - BEGIN
 	TArray<FSoundWaveCuePoint> CuePoints;
 	TArray<TSharedPtr<SCuePointMarker>> CuePointMarkers;
+	TArray<FPaintGeometry> HandleGeometryHandles;
+	// VAZU MOD - END
 
 	FSlateColor MarkerColor = FLinearColor(0.f, 255.f, 0.f, 1.f);
 	FSlateBrush MarkerBrush;
